@@ -67,14 +67,6 @@ Contributions are welcome! If you have suggestions or want to contribute to the 
 3. Commit your changes and push to your fork.
 4. Create a pull request against the main repository.
 
-## License
-
-[Specify the license or indicate its absence]
-
 ---
 
 Created by [Onur Serbetci](iboraham.github.io)
-
-```
-
-```
