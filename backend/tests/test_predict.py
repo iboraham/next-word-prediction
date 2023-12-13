@@ -1,25 +1,12 @@
-import os
-import sys
-
-from fastapi.testclient import TestClient
-
-
-# Add the root directory of the project to the python path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from app import app
-
-client = TestClient(app)
-
-
-def test_predict_endpoint():
+def test_predict_endpoint(client):
     # Test with a valid request
-    response = client.post("/predict", json={"word": "english"})
+    response = client.post("/predict", json={"word": "english", "data_source": "csv"})
     assert response.status_code == 200
     data = response.json()
     assert "prediction" in data
-    assert "all_matches" in data
+    assert "top_n_predictions" in data
     assert isinstance(data["prediction"], str)
-    assert isinstance(data["all_matches"], dict)
+    assert isinstance(data["top_n_predictions"], list)
 
     # Test with an invalid request (missing 'word')
     response = client.post("/predict", json={})

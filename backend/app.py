@@ -4,7 +4,7 @@ import sqlite3
 import time
 from collections import Counter
 from contextlib import closing
-from typing import List
+from typing import List, Tuple
 
 import nltk
 import pandas as pd
@@ -23,20 +23,21 @@ stop_words = stopwords.words("english")
 # Logging configuration
 logging.basicConfig(level=logging.DEBUG)
 
-# Database Path
+# Database Path: Wikibooks (https://dumps.wikimedia.org/enwikibooks/latest/)
 DB_PATH = "data/wikibooks.sqlite"
 
-# CSV File Path
+# CSV File Path: British Airways Reviews
 CSV_PATH = "data/reviews.csv"
 
 
 class PredictionRequest(BaseModel):
     word: str
+    data_source: str  # "csv" or "db"
 
 
 class PredictionResponse(BaseModel):
     prediction: str
-    all_matches: dict
+    top_n_predictions: List[Tuple[str, float]]
 
 
 def timer(func):
@@ -98,26 +99,36 @@ async def get_ngrams(tokens: List[List[str]], n: int):
     return ngram_counts
 
 
-async def predict(ngram_counts: Counter, word: str):
+async def predict(
+    ngram_counts: Counter, word: str, n: int = 5
+) -> Tuple[str, List[Tuple[str, float]]]:
     logging.info("Predicting next word")
-    predictions = {ng[1]: count for ng, count in ngram_counts.items() if ng[0] == word}
-    return max(predictions, key=predictions.get) if predictions else "", predictions
+    predictions = {
+        ng[1]: count
+        for ng, count in ngram_counts.items()
+        if ng[0] == word and ng[1] != None
+    }
+    sorted_predictions = sorted(predictions.items(), key=lambda x: x[1], reverse=True)[
+        :n
+    ]
+    total = sum(predictions.values())
+    return (
+        sorted_predictions[0][0] if sorted_predictions else "",
+        [(word, count / total) for word, count in sorted_predictions],
+    )
 
 
 @app.post("/predict", response_model=PredictionResponse)
 async def make_prediction(request: PredictionRequest):
     try:
-        rows = await read_csv()  # Replace with read_db() for database
+        rows = await read_csv() if request.data_source == "csv" else await read_db()
         processed_rows = await preprocess(rows)
         tokens = await tokenize(processed_rows)
         ngram_counts = await get_ngrams(tokens, 2)
 
-        prediction, all_matches = await predict(ngram_counts, request.word)
-        # Convert counts to percentages
-        total = sum(all_matches.values())
-        all_matches = {k: v / total for k, v in all_matches.items()}
+        prediction, top_n = await predict(ngram_counts, request.word, n=5)
 
-        return PredictionResponse(prediction=prediction, all_matches=all_matches)
+        return PredictionResponse(prediction=prediction, top_n_predictions=top_n)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
