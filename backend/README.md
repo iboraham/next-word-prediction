@@ -20,7 +20,7 @@ The base URL for accessing the API will depend on the deployment but typically f
      - `data_source` (string): Specifies the data source; it can be either `"csv"` for CSV file or `"db"` for database.
    - **Response**:
      - `prediction` (string): The most probable next word.
-     - `top_3_predictions` (array of objects): Each object contains a `word` (string) and its `probability` (float), representing the top n predicted next words and their respective probabilities.
+     - `top_n_predictions` (array of objects): Each object contains a `word` (string) and its `probability` (float), representing the top n predicted next words and their respective probabilities.
    - **Sample Request**:
      ```json
      {
