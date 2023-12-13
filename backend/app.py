@@ -12,9 +12,18 @@ from fastapi import FastAPI, HTTPException
 from nltk.corpus import stopwords
 from nltk.util import ngrams
 from pydantic import BaseModel
+from starlette.middleware.cors import CORSMiddleware
 
 # Initialize FastAPI app
 app = FastAPI()
+
+# Setup CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Setup for nltk
 nltk.download("stopwords", quiet=True)
