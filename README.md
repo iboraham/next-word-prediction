@@ -23,7 +23,7 @@ This repository contains the code for a Next Word Prediction application. The ap
 
 1. Clone the repository:
    ```bash
-   git clone [repository-url]
+   git clone https://github.com/iboraham/next-word-prediction.git
    ```
 
 2) Navigate to the backend directory and install dependencies:
