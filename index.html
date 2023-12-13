@@ -75,7 +75,10 @@
       });
 
       function predict() {
-        const text = textInput.value.split(" ").pop();
+        const text = textInput.value
+          .split(" ")
+          .filter((word) => word !== "")
+          .pop();
         const dataSource = document.getElementById("dataSource").value;
 
         fetch("http://localhost:8000/predict", {
