@@ -51,8 +51,10 @@
             rows="4"
             autofocus
           ></textarea>
-          <div id="textSuggestion" class="suggestion-tooltip">
+          <div class="suggestion-tooltip">
             <span class="text-sm">↹ Press tab</span>
+            <br />
+            <span id="textSuggestion"></span>
           </div>
         </div>
 
@@ -75,7 +77,7 @@
     <script>
       const textInput = document.getElementById("textInput");
       const textSuggestion = document.getElementById("textSuggestion");
-
+      const suggestionTooltip = document.querySelector(".suggestion-tooltip");
       textInput.addEventListener("input", predict);
 
       textInput.addEventListener("keydown", function (event) {
@@ -87,7 +89,7 @@
 
       function acceptSuggestion() {
         textInput.value += " " + textSuggestion.textContent;
-        textSuggestion.style.display = "none";
+        suggestionTooltip.style.display = "none";
         textSuggestion.textContent = "";
         predict();
       }
@@ -144,19 +146,19 @@
         if (predictions && predictions.length > 0) {
           const suggestionText = predictions[0][0];
           textSuggestion.textContent = suggestionText;
-          textSuggestion.style.display = "block";
+          suggestionTooltip.style.display = "block";
           positionSuggestion();
         } else {
-          textSuggestion.style.display = "none";
+          suggestionTooltip.style.display = "none";
         }
       }
 
       function positionSuggestion() {
         const { offsetLeft, offsetTop, offsetHeight, offsetWidth } = textInput;
-        textSuggestion.style.left = `${
-          offsetLeft + offsetWidth - textSuggestion.offsetWidth
+        suggestionTooltip.style.left = `${
+          offsetLeft + offsetWidth - suggestionTooltip.offsetWidth
         }px`;
-        textSuggestion.style.top = `${offsetTop}px`;
+        suggestionTooltip.style.top = `${offsetTop}px`;
       }
     </script>
   </body>
