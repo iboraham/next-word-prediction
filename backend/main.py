@@ -79,13 +79,14 @@ def get_ngrams(tokens, n):
 
 
 @timer
-def predict(ngram_counts, ngram):
+def predict(ngram_counts, word):
     logging.info("Predicting next word")
     predictions = {}
     for ng in ngram_counts:
-        if ng[:-1] == ngram[:-1] and ng[-1]:
-            predictions[ng[-1]] = ngram_counts[ng]
-    return max(predictions, key=predictions.get) if predictions else ""
+        if ng[0] == word:
+            predictions[ng[1]] = ngram_counts[ng]
+
+    return max(predictions, key=predictions.get) if predictions else "", predictions
 
 
 def main():
@@ -93,10 +94,14 @@ def main():
     processed_rows = preprocess(rows)
     tokens = tokenize(processed_rows)
     ngram_counts = get_ngrams(tokens, 2)
-    print(ngram_counts[0])
 
-    prediction = predict(ngram_counts, ("Austin",))
-    print(f"Prediction: {prediction}")
+    prediction, all_matches = predict(ngram_counts, "english")
+    # Convert counts to percentages
+    total = sum(all_matches.values())
+    all_matches = {k: v / total for k, v in all_matches.items()}
+    all_matches = Counter(all_matches)
+    logging.info(f"Top 10 matches: {all_matches.most_common(10)}")
+    logging.info(f"Prediction: {prediction}")
 
 
 if __name__ == "__main__":
