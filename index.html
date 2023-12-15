@@ -4,7 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title id="title-app">Next Word Prediction App</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+    </script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
@@ -35,12 +40,51 @@
         pointer-events: none;
         z-index: 10;
       }
+
+      /* Styles for the sun and moon icons */
+      .icon {
+        display: none;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      #toggle:checked ~ .icon-moon {
+        display: block;
+        left: 2px;
+      }
+      #toggle:not(:checked) ~ .icon-sun {
+        display: block;
+        right: 2px;
+      }
     </style>
   </head>
-  <body class="bg-gray-100 font-sans leading-normal tracking-normal">
-    <div class="container mx-auto my-10">
-      <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col">
-        <h2 class="mb-4 text-xl font-bold text-gray-700">
+  <body
+    class="bg-gray-100 font-sans leading-normal tracking-normal dark:bg-gray-800 dark:text-white"
+  >
+    <div class="prose container mx-auto my-10 justify-center">
+      <!-- Dark Mode Toggle -->
+      <div class="flex justify-end">
+        <label
+          class="relative inline-flex items-center mb-5 cursor-pointer"
+          title="Toggle Dark Mode"
+        >
+          <input id="toggle" type="checkbox" class="sr-only peer" />
+          <div
+            class="w-14 h-7 bg-gray-200 dark:bg-gray-700 rounded-full peer peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 peer-checked:bg-blue-600"
+          ></div>
+
+          <!-- Sun icon for light mode -->
+          <i class="fas fa-sun icon icon-sun text-yellow-500"></i>
+
+          <!-- Moon icon for dark mode -->
+          <i class="fas fa-moon icon icon-moon text-gray-300"></i>
+        </label>
+      </div>
+
+      <div
+        class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col dark:bg-gray-700"
+      >
+        <h2 class="mb-4 text-xl font-bold text-gray-700 dark:text-gray-300">
           Next Word Prediction
         </h2>
         <div class="relative">
@@ -58,7 +102,9 @@
           </div>
         </div>
 
-        <label class="block text-gray-700 text-sm font-bold mb-2">
+        <label
+          class="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300"
+        >
           Corpus
         </label>
         <select
@@ -68,7 +114,7 @@
           <option value="csv">British Airways Reviews</option>
         </select>
 
-        <div id="predictions" class="mt-6">
+        <div id="predictions" class="mt-6 dark:text-gray-300">
           <!-- Predictions will be displayed here -->
         </div>
       </div>
@@ -160,6 +206,16 @@
         }px`;
         suggestionTooltip.style.top = `${offsetTop}px`;
       }
+
+      document
+        .getElementById("toggle")
+        .addEventListener("change", function (event) {
+          if (event.target.checked) {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+        });
     </script>
   </body>
 </html>
