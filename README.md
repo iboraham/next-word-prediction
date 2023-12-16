@@ -11,6 +11,10 @@ This repository contains the code for a Next Word Prediction application. The ap
 - Utilizes FastAPI for efficient backend processing.
 - Supports different data sources for predictions.
 
+## Demo
+
+![Demo](./docs/demo.gif)
+
 ## Installation
 
 ### Prerequisites
