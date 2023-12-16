@@ -13,9 +13,7 @@ To model the probability calculation for a Markov chain, we can represent it mat
 
 In a bigram model, the probability of a word $W_2$ occurring after another word $W_1$ is calculated based on the occurrences of the sequence $W_1 W_2$ relative to the total occurrences of $W_1$ in the text corpus. This is represented mathematically as follows:
 
-$$
-P(W_2 | W_1) = \frac{C(W_1 W_2)}{C(W_1)}
-$$
+$$P(W_2 | W_1) = \frac{C(W_1 W_2)}{C(W_1)}$$
 
 Where:
 
