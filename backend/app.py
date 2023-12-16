@@ -102,29 +102,31 @@ async def tokenize(rows: List[str]):
 async def get_ngrams(tokens: List[List[str]], n: int):
     logging.info("Creating n-grams")
     ngram_counts = Counter()
+    n_minus_one_gram_counts = Counter()
     for token_list in tokens:
         ngram_counts.update(ngrams(token_list, n, pad_right=True, pad_left=True))
+        n_minus_one_gram_counts.update(
+            ngrams(token_list, n - 1, pad_right=True, pad_left=True)
+        )
     logging.info(f"Total n-grams: {len(ngram_counts)}")
-    return ngram_counts
+    return ngram_counts, n_minus_one_gram_counts
 
 
 async def predict(
-    ngram_counts: Counter, word: str, n: int = 5
+    ngram_counts: Counter, n_minus_one_gram_counts: Counter, word: str, n: int = 5
 ) -> Tuple[str, List[Tuple[str, float]]]:
-    logging.info("Predicting next word")
-    predictions = {
-        ng[1]: count
-        for ng, count in ngram_counts.items()
-        if ng[0] == word and ng[1] != None
-    }
+    logging.info("Predicting next word using Markov chain")
+    predictions = {}
+    for ng, count in ngram_counts.items():
+        if ng[0] == word and ng[1]:
+            n_minus_one_gram = ng[:-1]
+            n_minus_one_count = n_minus_one_gram_counts[n_minus_one_gram]
+            predictions[ng[1]] = count / n_minus_one_count
+
     sorted_predictions = sorted(predictions.items(), key=lambda x: x[1], reverse=True)[
         :n
     ]
-    total = sum(predictions.values())
-    return (
-        sorted_predictions[0][0] if sorted_predictions else "",
-        [(word, count / total) for word, count in sorted_predictions],
-    )
+    return (sorted_predictions[0][0] if sorted_predictions else "", sorted_predictions)
 
 
 @app.post("/predict", response_model=PredictionResponse)
@@ -133,9 +135,10 @@ async def make_prediction(request: PredictionRequest):
         rows = await read_csv() if request.data_source == "csv" else await read_db()
         processed_rows = await preprocess(rows)
         tokens = await tokenize(processed_rows)
-        ngram_counts = await get_ngrams(tokens, 2)
-
-        prediction, top_n = await predict(ngram_counts, request.word, n=5)
+        ngram_counts, n_minus_one_gram_counts = await get_ngrams(tokens, 2)
+        prediction, top_n = await predict(
+            ngram_counts, n_minus_one_gram_counts, request.word, n=5
+        )
 
         return PredictionResponse(prediction=prediction, top_n_predictions=top_n)
     except Exception as e:
